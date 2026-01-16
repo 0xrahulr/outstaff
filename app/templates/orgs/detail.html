@@ -9,6 +9,9 @@
       <div class="mt-4 flex flex-wrap gap-3">
         <a class="btn btn-primary" href="{{ url_for('certificates.list_certificates', org_id=org.id) }}">Certificates</a>
         <a class="btn btn-secondary" href="{{ url_for('time.dashboard', org_id=org.id) }}">Time tracking</a>
+        <a class="btn btn-secondary" href="{{ url_for('notes.list_notes', org_id=org.id) }}">Team Notes</a>
+        <a class="btn btn-secondary" href="{{ url_for('directory.list_members', org_id=org.id) }}">Team Directory</a>
+        <a class="btn btn-secondary" href="{{ url_for('expenses.list_expenses', org_id=org.id) }}">Expenses</a>
         {% if membership.role == Role.ADMIN %}
         <a class="btn btn-secondary" href="{{ url_for('admin.manage_members', org_id=org.id) }}">Admin console</a>
         <a class="btn btn-secondary" href="{{ url_for('orgs.edit_org', org_id=org.id) }}">Edit settings</a>
@@ -47,6 +50,9 @@
       <div class="mt-3 space-y-2">
         <a class="block w-full btn btn-primary text-center" href="{{ url_for('certificates.list_certificates', org_id=org.id) }}">Review certificates</a>
         <a class="block w-full btn btn-secondary text-center" href="{{ url_for('time.my_time', org_id=org.id) }}">Submit time</a>
+        <a class="block w-full btn btn-secondary text-center" href="{{ url_for('notes.list_notes', org_id=org.id) }}">Team Notes</a>
+        <a class="block w-full btn btn-secondary text-center" href="{{ url_for('directory.list_members', org_id=org.id) }}">Team Directory</a>
+        <a class="block w-full btn btn-secondary text-center" href="{{ url_for('expenses.list_expenses', org_id=org.id) }}">Expense Tracker</a>
         {% if membership.role == Role.ADMIN %}
         <a class="block w-full btn btn-secondary text-center" href="{{ url_for('admin.manage_members', org_id=org.id) }}">Invite members</a>
         {% endif %}

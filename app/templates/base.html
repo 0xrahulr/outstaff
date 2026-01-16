@@ -18,9 +18,12 @@
         </a>
         <nav class="flex items-center gap-4">
           {% if current_user.is_authenticated %}
+          {% set current_org_id = active_membership.org_id if active_membership else (user_orgs[0].id if user_orgs else None) %}
           <a class="nav-link" href="{{ url_for('orgs.list_orgs') }}">Organizations</a>
-          <a class="nav-link" href="{{ url_for('certificates.list_certificates', org_id=(active_membership.org_id if active_membership else (user_orgs[0].id if user_orgs else 0))) if user_orgs else '#' }}">Certificates</a>
-          <a class="nav-link" href="{{ url_for('time.dashboard', org_id=(active_membership.org_id if active_membership else (user_orgs[0].id if user_orgs else 0))) if user_orgs else '#' }}">Time</a>
+          {% if current_org_id %}
+          <a class="nav-link" href="{{ url_for('certificates.list_certificates', org_id=current_org_id) }}">Certificates</a>
+          <a class="nav-link" href="{{ url_for('time.dashboard', org_id=current_org_id) }}">Time</a>
+          {% endif %}
           <div class="flex items-center gap-2">
             <span class="pill">{{ current_user.name }}</span>
             <a class="btn btn-secondary" href="{{ url_for('auth.logout') }}">Logout</a>

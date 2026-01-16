@@ -155,3 +155,16 @@ class ReportFilterForm(FlaskForm):
         validators=[Optional()],
     )
     submit = SubmitField("Run report")
+
+
+class NoteForm(FlaskForm):
+    content = TextAreaField("Note", validators=[DataRequired(), Length(min=1, max=2000)])
+    submit = SubmitField("Add Note")
+
+
+class ExpenseForm(FlaskForm):
+    amount = StringField("Amount", validators=[DataRequired()], description="Enter amount (e.g., 100.00)")
+    category = StringField("Category", validators=[DataRequired(), Length(max=100)], description="e.g., Travel, Office Supplies, Meals")
+    date = DateField("Date", validators=[DataRequired()])
+    description = TextAreaField("Description", validators=[Optional(), Length(max=1000)])
+    submit = SubmitField("Add Expense")

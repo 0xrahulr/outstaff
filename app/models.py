@@ -57,6 +57,7 @@ class User(UserMixin, TimestampMixin, db.Model):
     time_entries = db.relationship(
         "TimeEntry", backref="user", lazy=True, cascade="all, delete-orphan", foreign_keys="TimeEntry.user_id"
     )
+    notes = db.relationship("Note", backref="author", lazy=True, cascade="all, delete-orphan", foreign_keys="Note.author_id")
 
     def set_password(self, password: str):
         self.password_hash = generate_password_hash(password)
@@ -91,6 +92,8 @@ class Organization(TimestampMixin, db.Model):
     holidays = db.relationship("Holiday", backref="organization", lazy=True, cascade="all, delete-orphan")
     report_presets = db.relationship("ReportPreset", backref="organization", lazy=True, cascade="all, delete-orphan")
     approval_logs = db.relationship("ApprovalLog", backref="organization", lazy=True, cascade="all, delete-orphan")
+    notes = db.relationship("Note", backref="organization", lazy=True, cascade="all, delete-orphan")
+    expenses = db.relationship("Expense", backref="organization", lazy=True, cascade="all, delete-orphan")
 
 
 class Membership(TimestampMixin, db.Model):
@@ -264,3 +267,22 @@ class AuditLog(TimestampMixin, db.Model):
     details = db.Column(db.JSON, nullable=True)
 
     actor = db.relationship("User", foreign_keys=[actor_id])
+
+
+class Note(TimestampMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    org_id = db.Column(db.Integer, db.ForeignKey("organization.id"), nullable=False)
+    author_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+
+
+class Expense(TimestampMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    org_id = db.Column(db.Integer, db.ForeignKey("organization.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    amount = db.Column(db.Numeric(10, 2), nullable=False)
+    category = db.Column(db.String(100), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    description = db.Column(db.Text, nullable=True)
+
+    user = db.relationship("User", foreign_keys=[user_id])
