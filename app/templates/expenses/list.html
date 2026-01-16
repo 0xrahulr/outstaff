@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-5xl mx-auto">
+  <div class="mb-6">
+    <p class="text-sm uppercase tracking-wide text-brand-700 font-semibold">Organization</p>
+    <h1 class="text-3xl font-bold">Expense Tracker - {{ org.name }}</h1>
+    <p class="text-slate-600">Track and manage organization expenses.</p>
+  </div>
+
+  <!-- Add Expense Form -->
+  <div class="card p-6 mb-6">
+    <h2 class="text-xl font-semibold text-slate-900 mb-4">Add New Expense</h2>
+    <form method="POST" class="space-y-4">
+      {{ form.hidden_tag() }}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="space-y-2">
+          {{ form.amount.label(class_="block text-sm font-medium text-slate-700") }}
+          {{ form.amount(class_="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500", placeholder="100.00") }}
+          {% if form.amount.errors %}
+          <p class="text-sm text-rose-600">{{ form.amount.errors[0] }}</p>
+          {% endif %}
+        </div>
+        <div class="space-y-2">
+          {{ form.category.label(class_="block text-sm font-medium text-slate-700") }}
+          {{ form.category(class_="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500", placeholder="e.g., Travel, Office Supplies") }}
+          {% if form.category.errors %}
+          <p class="text-sm text-rose-600">{{ form.category.errors[0] }}</p>
+          {% endif %}
+        </div>
+        <div class="space-y-2">
+          {{ form.date.label(class_="block text-sm font-medium text-slate-700") }}
+          {{ form.date(class_="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500") }}
+          {% if form.date.errors %}
+          <p class="text-sm text-rose-600">{{ form.date.errors[0] }}</p>
+          {% endif %}
+        </div>
+        <div class="space-y-2 md:col-span-2">
+          {{ form.description.label(class_="block text-sm font-medium text-slate-700") }}
+          {{ form.description(class_="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500", rows=3, placeholder="Optional description...") }}
+          {% if form.description.errors %}
+          <p class="text-sm text-rose-600">{{ form.description.errors[0] }}</p>
+          {% endif %}
+        </div>
+      </div>
+      <button class="btn btn-primary" type="submit">{{ form.submit.label.text }}</button>
+    </form>
+  </div>
+
+  <!-- Expenses List -->
+  <div class="card p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-semibold">All Expenses</h2>
+      <div class="text-right">
+        <p class="text-sm text-slate-600">Total Amount</p>
+        <p class="text-2xl font-bold text-brand-700">${{ "{:,.2f}".format(float(total_amount)) }}</p>
+      </div>
+    </div>
+    
+    {% if expenses %}
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="border-b border-slate-200">
+            <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700">Date</th>
+            <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700">Category</th>
+            <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700">Description</th>
+            <th class="text-right py-3 px-4 text-sm font-semibold text-slate-700">Amount</th>
+            <th class="text-left py-3 px-4 text-sm font-semibold text-slate-700">Added By</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for expense in expenses %}
+          <tr class="border-b border-slate-100 hover:bg-slate-50">
+            <td class="py-3 px-4 text-sm text-slate-900">{{ expense.date.strftime('%Y-%m-%d') }}</td>
+            <td class="py-3 px-4">
+              <span class="badge bg-brand-100 text-brand-700">{{ expense.category }}</span>
+            </td>
+            <td class="py-3 px-4 text-sm text-slate-700">
+              {{ expense.description or "-" }}
+            </td>
+            <td class="py-3 px-4 text-right">
+              <span class="font-semibold text-slate-900">${{ "{:,.2f}".format(float(expense.amount)) }}</span>
+            </td>
+            <td class="py-3 px-4 text-sm text-slate-600">
+              {{ expense.user.name }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+      <p class="text-slate-600">No expenses recorded yet. Add your first expense above!</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

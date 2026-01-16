@@ -24,12 +24,18 @@ def create_app():
     from app.admin.routes import admin_bp
     from app.certificates.routes import certificates_bp
     from app.time_entries.routes import time_bp
+    from app.notes.routes import notes_bp
+    from app.directory.routes import directory_bp
+    from app.expenses.routes import expenses_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(orgs_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(certificates_bp)
     app.register_blueprint(time_bp)
+    app.register_blueprint(notes_bp)
+    app.register_blueprint(directory_bp)
+    app.register_blueprint(expenses_bp)
 
     register_cli(app)
     register_context_processors(app)
