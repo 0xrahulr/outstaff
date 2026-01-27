@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-xl font-bold">Team Notes</h1>
+
+<form method="POST">
+  <textarea name="content" required></textarea>
+  <button class="btn btn-primary">Add</button>
+</form>
+
+{% for note in notes %}
+  <div class="card p-3">
+    <p>{{ note.content }}</p>
+    <small>{{ note.user.name }} • {{ note.created_at }}</small>
+
+    {% if note.user_id == current_user.id %}
+      <form method="POST" action="{{ url_for('notes.delete', org_id=membership.org_id, note_id=note.id) }}">
+        <button>Delete</button>
+      </form>
+    {% endif %}
+  </div>
+{% endfor %}
+{% endblock %}
