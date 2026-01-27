@@ -1,5 +1,4 @@
 from pathlib import Path
-
 from flask import Flask
 
 from app.config import BaseConfig
@@ -13,12 +12,16 @@ def create_app():
         static_folder="static",
         instance_relative_config=True,
     )
+
     app.config.from_object(BaseConfig)
 
+    # ensure instance folder exists
     Path(app.instance_path).mkdir(parents=True, exist_ok=True)
+
     init_extensions(app)
 
-    from app import models  # noqa: F401
+    # ---- IMPORT MODELS (IMPORTANT) ----
+    from app import models  # noqa
     from app.auth.routes import auth_bp
     from app.orgs.routes import orgs_bp
     from app.admin.routes import admin_bp
@@ -34,9 +37,7 @@ def create_app():
     register_cli(app)
     register_context_processors(app)
 
-    with app.app_context():
-        db.create_all()
-
+    # ❌ REMOVE db.create_all() FROM HERE
     return app
 
 
@@ -45,7 +46,7 @@ def register_cli(app: Flask):
     def init_db_command():
         """Initialize database tables."""
         db.create_all()
-        print("Database initialized.")
+        print("✅ Database initialized successfully.")
 
 
 def register_context_processors(app: Flask):
@@ -56,27 +57,35 @@ def register_context_processors(app: Flask):
     def inject_orgs():
         orgs = []
         active_membership = None
+
         if current_user.is_authenticated:
             orgs = list(
                 Organization.query.join(Membership).filter(
-                    Membership.user_id == current_user.id, Membership.status == "active"
+                    Membership.user_id == current_user.id,
+                    Membership.status == "active",
                 )
             )
+
             active_membership = (
-                Membership.query.filter_by(user_id=current_user.id, is_default=True)
+                Membership.query.filter_by(
+                    user_id=current_user.id, is_default=True
+                )
                 .order_by(Membership.created_at.desc())
                 .first()
             )
+
             if not active_membership and orgs:
                 active_membership = (
-                    Membership.query.filter_by(user_id=current_user.id, org_id=orgs[0].id)
+                    Membership.query.filter_by(
+                        user_id=current_user.id, org_id=orgs[0].id
+                    )
                     .order_by(Membership.created_at.desc())
                     .first()
                 )
+
         return dict(user_orgs=orgs, active_membership=active_membership)
 
     @login_manager.user_loader
     def load_user(user_id):
         from app.models import User
-
         return User.query.get(int(user_id))
