@@ -59,7 +59,20 @@ def view_org(org_id):
         abort(403)
     org = membership.organization
     members = Membership.query.filter_by(org_id=org.id, status="active").all()
-    return render_template("orgs/detail.html", org=org, membership=membership, members=members, Role=Role)
+    
+    # Dashboard Stats
+    member_count = len(members)
+    
+    expenses = Expense.query.filter_by(org_id=org.id).all()
+    total_expenses = sum(e.amount for e in expenses)
+    
+    pending_leaves = LeaveRequest.query.filter_by(org_id=org.id, status="Pending").count()
+    
+    recent_activity = ActivityLog.query.filter_by(org_id=org.id).order_by(ActivityLog.created_at.desc()).limit(5).all()
+
+    return render_template("orgs/detail.html", org=org, membership=membership, members=members, Role=Role,
+                           member_count=member_count, total_expenses=total_expenses, 
+                           pending_leaves=pending_leaves, recent_activity=recent_activity)
 
 
 @orgs_bp.route("/orgs/<int:org_id>/edit", methods=["GET", "POST"])
