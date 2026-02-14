@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-slate-900">External Users Data</h1>
+            <p class="text-slate-600">Fetched from jsonplaceholder.typicode.com</p>
+        </div>
+        <a href="{{ url_for('orgs.view_org', org_id=org.id) }}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading" class="flex flex-col items-center justify-center py-12">
+        <svg class="animate-spin h-10 w-10 text-indigo-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
+        </svg>
+        <p class="text-slate-500 font-medium">Loading external data...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="error" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <strong class="font-bold">Error!</strong>
+        <span class="block sm:inline" id="error-message">Failed to load data. Please try again later.</span>
+    </div>
+
+    <!-- Data Grid -->
+    <div id="data-grid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Cards will be injected here via JS -->
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const errorMessage = document.getElementById('error-message');
+        const grid = document.getElementById('data-grid');
+
+        fetch('https://jsonplaceholder.typicode.com/users')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(users => {
+                loading.classList.add('hidden');
+                grid.classList.remove('hidden');
+
+                users.forEach(user => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white overflow-hidden shadow rounded-lg border border-slate-200 hover:shadow-md transition-shadow';
+                    card.innerHTML = `
+                        <div class="px-4 py-5 sm:p-6">
+                            <div class="flex items-center space-x-4">
+                                <div class="flex-shrink-0">
+                                    <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100">
+                                        <span class="font-medium leading-none text-indigo-700">${user.name.charAt(0)}</span>
+                                    </span>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <p class="truncate text-sm font-medium text-slate-900">${user.name}</p>
+                                    <p class="truncate text-sm text-slate-500">@${user.username}</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 space-y-2">
+                                <div class="flex items-center text-sm text-slate-500">
+                                    <svg class="mr-1.5 h-4 w-4 flex-shrink-0 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
+                                        <path d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z" />
+                                    </svg>
+                                    <a href="mailto:${user.email}" class="hover:underline hover:text-indigo-600">${user.email}</a>
+                                </div>
+                                <div class="flex items-center text-sm text-slate-500">
+                                    <svg class="mr-1.5 h-4 w-4 flex-shrink-0 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd" />
+                                    </svg>
+                                    <span class="truncate">${user.company.name}</span>
+                                </div>
+                                <div class="flex items-center text-sm text-slate-500">
+                                    <svg class="mr-1.5 h-4 w-4 flex-shrink-0 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                    <a href="http://${user.website}" target="_blank" class="hover:underline hover:text-indigo-600">${user.website}</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            })
+            .catch(err => {
+                console.error('Error fetching data:', err);
+                loading.classList.add('hidden');
+                error.classList.remove('hidden');
+                errorMessage.textContent = 'Failed to load external data. ' + err.message;
+            });
+    });
+</script>
+{% endblock %}

@@ -212,4 +212,17 @@ def export_data(slug):
         output.headers["Content-type"] = "text/csv"
         return output
 
+
     return render_template("orgs/export.html", org=org)
+
+@orgs_bp.route("/orgs/<slug>/external_data")
+@login_required
+def external_data(slug):
+    org = Organization.query.filter_by(slug=slug).first_or_404()
+    
+    membership = Membership.query.filter_by(user_id=current_user.id, org_id=org.id, status="active").first()
+    if not membership:
+        flash("You must be a member of this organization to view external data.", "error")
+        return redirect(url_for("orgs.dashboard", slug=slug))
+
+    return render_template("orgs/external_data.html", org=org)
