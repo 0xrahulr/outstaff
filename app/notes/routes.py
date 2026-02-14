@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import login_required, current_user
 from app.extensions import db
 from app.models import Note, Organization, Membership
+from app.utils import log_activity
 
 notes_bp = Blueprint("notes", __name__)
 
@@ -26,6 +27,7 @@ def index(slug):
             note = Note(content=content, user_id=current_user.id, org_id=org.id)
             db.session.add(note)
             db.session.commit()
+            log_activity(org.id, current_user.id, "Added a team note.")
             flash("Note added successfully.", "success")
             return redirect(url_for("notes.index", slug=slug))
 
@@ -47,5 +49,6 @@ def delete(note_id):
     org_slug = note.organization.slug
     db.session.delete(note)
     db.session.commit()
+    log_activity(note.org_id, current_user.id, "Deleted a team note.")
     flash("Note deleted successfully.", "success")
     return redirect(url_for("notes.index", slug=org_slug))
