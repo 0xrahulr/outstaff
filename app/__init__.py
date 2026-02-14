@@ -6,14 +6,20 @@ from app.config import BaseConfig
 from app.extensions import csrf, db, init_extensions, login_manager
 
 
-def create_app():
+def create_app(test_config=None):
     app = Flask(
         __name__,
         template_folder="templates",
         static_folder="static",
         instance_relative_config=True,
     )
+    
     app.config.from_object(BaseConfig)
+    
+    if test_config:
+        app.config.from_mapping(test_config)
+
+    Path(app.instance_path).mkdir(parents=True, exist_ok=True)
 
     Path(app.instance_path).mkdir(parents=True, exist_ok=True)
     init_extensions(app)
@@ -24,12 +30,14 @@ def create_app():
     from app.admin.routes import admin_bp
     from app.certificates.routes import certificates_bp
     from app.time_entries.routes import time_bp
+    from app.notes.routes import notes_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(orgs_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(certificates_bp)
     app.register_blueprint(time_bp)
+    app.register_blueprint(notes_bp)
 
     register_cli(app)
     register_context_processors(app)

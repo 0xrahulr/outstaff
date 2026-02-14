@@ -264,3 +264,13 @@ class AuditLog(TimestampMixin, db.Model):
     details = db.Column(db.JSON, nullable=True)
 
     actor = db.relationship("User", foreign_keys=[actor_id])
+
+
+class Note(TimestampMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    org_id = db.Column(db.Integer, db.ForeignKey("organization.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+
+    organization = db.relationship("Organization", backref=db.backref("notes", lazy=True, cascade="all, delete-orphan"))
+    user = db.relationship("User", backref=db.backref("notes", lazy=True, cascade="all, delete-orphan"))
