@@ -274,3 +274,16 @@ class Note(TimestampMixin, db.Model):
 
     organization = db.relationship("Organization", backref=db.backref("notes", lazy=True, cascade="all, delete-orphan"))
     user = db.relationship("User", backref=db.backref("notes", lazy=True, cascade="all, delete-orphan"))
+
+
+class Expense(TimestampMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    org_id = db.Column(db.Integer, db.ForeignKey("organization.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    amount = db.Column(db.Float, nullable=False)
+    category = db.Column(db.String(100), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    description = db.Column(db.String(255), nullable=False)
+
+    organization = db.relationship("Organization", backref=db.backref("expenses", lazy=True, cascade="all, delete-orphan"))
+    user = db.relationship("User", backref=db.backref("expenses", lazy=True, cascade="all, delete-orphan"))
