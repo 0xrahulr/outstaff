@@ -16,6 +16,7 @@
                 <a class="btn btn-secondary" href="{{ url_for('expenses.index', slug=org.slug) }}">Expense Tracker</a>
                 <a class="btn btn-secondary" href="{{ url_for('leaves.index', slug=org.slug) }}">Leave Requests</a>
                 <a class="btn btn-secondary" href="{{ url_for('orgs.activity', slug=org.slug) }}">Activity Log</a>
+                <a class="btn btn-secondary" href="{{ url_for('orgs.export_data', slug=org.slug) }}">Export CSV</a>
                 {% if membership.role == Role.ADMIN %}
                 <a class="btn btn-secondary" href="{{ url_for('admin.manage_members', org_id=org.id) }}">Admin
                     console</a>
