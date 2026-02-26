@@ -3,7 +3,7 @@ from flask_login import current_user, login_required
 
 from app.extensions import db
 from app.forms import OrganizationForm
-from app.models import Membership, Organization, Role
+from app.models import Membership, Organization, Role , ActivityLog
 
 orgs_bp = Blueprint("orgs", __name__)
 
@@ -103,3 +103,45 @@ def set_default_org(org_id):
     db.session.commit()
     flash("Default organization updated.", "success")
     return redirect(request.referrer or url_for("orgs.list_orgs"))
+
+
+@orgs_bp.route("/orgs/<int:org_id>/members")
+@login_required
+def directory(org_id):
+    membership = _user_membership(org_id)
+    if not membership:
+        abort(403)
+    
+    org = membership.organization
+    query = request.args.get("q", "").strip()
+
+    members_query = Membership.query.join(Membership.user).filter(
+        Membership.org_id == org.id,
+        Membership.status == "active"
+    )
+
+    if query:
+        # Case-insensitive search on User name or Email
+        from app.models import User
+        members_query = members_query.filter(
+            (User.name.ilike(f"%{query}%")) | (User.email.ilike(f"%{query}%"))
+        )
+    members = members_query.order_by(Membership.user.property.mapper.class_.name).all()
+
+    return render_template("orgs/members.html", org=org, members=members, query=query, Role=Role)
+
+
+@orgs_bp.route("/orgs/<slug>/activity")
+@login_required
+def activity(slug):
+    org = Organization.query.filter_by(slug=slug).first_or_404()
+    
+    # Check membership
+    membership = Membership.query.filter_by(user_id=current_user.id, org_id=org.id, status="active").first()
+    if not membership:
+        flash("You must be a member of this organization to view activity log.", "error")
+        return redirect(url_for("orgs.dashboard", slug=slug))
+
+    activities = ActivityLog.query.filter_by(org_id=org.id).order_by(ActivityLog.created_at.desc()).limit(50).all()
+    
+    return render_template("orgs/activity.html", org=org, activities=activities)

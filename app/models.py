@@ -264,3 +264,50 @@ class AuditLog(TimestampMixin, db.Model):
     details = db.Column(db.JSON, nullable=True)
 
     actor = db.relationship("User", foreign_keys=[actor_id])
+
+
+class Note(TimestampMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    org_id = db.Column(db.Integer, db.ForeignKey("organization.id"), nullable=False)
+    author_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+
+    content = db.Column(db.Text, nullable=False)
+
+    # Relationships
+    organization = db.relationship("Organization", backref=db.backref("notes", lazy=True, cascade="all, delete-orphan"))
+    author = db.relationship("User", foreign_keys=[author_id])
+
+class Expense(TimestampMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    org_id = db.Column(db.Integer, db.ForeignKey("organization.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    amount = db.Column(db.Float, nullable=False)
+    category = db.Column(db.String(100), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    description = db.Column(db.String(255), nullable=False)
+
+    organization = db.relationship("Organization", backref=db.backref("expenses", lazy=True, cascade="all, delete-orphan"))
+    user = db.relationship("User", backref=db.backref("expenses", lazy=True, cascade="all, delete-orphan"))
+
+class LeaveRequest(TimestampMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    org_id = db.Column(db.Integer, db.ForeignKey("organization.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    type = db.Column(db.String(50), nullable=False)  # Vacation, Sick, Other
+    start_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date, nullable=False)
+    reason = db.Column(db.String(255), nullable=True)
+    status = db.Column(db.String(20), default="Pending", nullable=False)  # Pending, Approved, Rejected
+
+    organization = db.relationship("Organization", backref=db.backref("leave_requests", lazy=True, cascade="all, delete-orphan"))
+    user = db.relationship("User", backref=db.backref("leave_requests", lazy=True, cascade="all, delete-orphan"))
+
+class ActivityLog(TimestampMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    org_id = db.Column(db.Integer, db.ForeignKey("organization.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    action = db.Column(db.String(255), nullable=False)
+
+    organization = db.relationship("Organization", backref=db.backref("activity_logs", lazy=True, cascade="all, delete-orphan"))
+    user = db.relationship("User", backref=db.backref("activity_logs", lazy=True, cascade="all, delete-orphan"))
